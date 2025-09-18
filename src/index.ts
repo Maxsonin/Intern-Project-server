@@ -1,7 +1,7 @@
 import buildApp from "./app";
 
 async function bootstrap() {
-	const fastify = await buildApp();
+	const fastify = await buildApp({ logger: true });
 
 	const port = fastify.config.PORT;
 	const host = fastify.config.HOST;

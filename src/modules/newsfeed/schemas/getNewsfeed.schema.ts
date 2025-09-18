@@ -8,7 +8,7 @@ export const getNewsfeedSchema = {
 		type: "object",
 		properties: {
 			url: { type: "string" },
-			force: { type: "boolean" },
+			force: { type: "integer", enum: [0, 1] },
 		},
 		required: [],
 		additionalProperties: false,

@@ -1,30 +1,30 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { parseFeed } from "../services/newsfeed.service";
-import type { NewsItem } from "../types/newsItem";
 
 export async function getNewsfeedHandler(
-	request: FastifyRequest<{ Querystring: { url?: string; force?: boolean } }>,
+	request: FastifyRequest<{ Querystring: { url?: string; force?: number } }>,
 	reply: FastifyReply,
 ) {
 	try {
 		const url = request.query.url ?? request.server.config.DEFAULT_FEED_URL;
-		const force = request.query.force ?? false;
+		const force = request.query.force === 1;
 
-		let feedData: NewsItem[] = [];
+		request.log.info({ url, force }, "Fetching newsfeed");
+
 		if (force) {
-			feedData = await parseFeed(url);
-		} else {
-			// TODO: check DB first
-			const dbData = null;
-			if (dbData) {
-				feedData = dbData;
-			} else {
-				feedData = await parseFeed(url);
-				// TODO: save to DB
-			}
+			const feedData = await parseFeed(url);
+			return reply.send({ data: feedData });
 		}
-		reply.code(200).send({ data: feedData });
-	} catch {
-		reply.code(500).send({ message: "Internal server error" });
+
+		const dbData = null; // TODO: check DB first
+		if (dbData) {
+			return reply.send({ data: dbData });
+		}
+
+		const feedData = await parseFeed(url); // TODO: save to DB
+		reply.send({ data: feedData });
+	} catch (err) {
+		request.log.error({ err }, "Error in newsfeed handler");
+		reply.internalServerError();
 	}
 }
