@@ -1,3 +1,3 @@
 export async function parseFeed(url: string) {
-  return {};
+	return { url };
 }
