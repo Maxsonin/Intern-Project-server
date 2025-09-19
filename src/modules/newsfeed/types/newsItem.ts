@@ -3,5 +3,5 @@ export type NewsItem = {
 	link: string;
 	rssUrl: string;
 	pubDate?: Date | null;
-	content: string;
+	description: string;
 };
