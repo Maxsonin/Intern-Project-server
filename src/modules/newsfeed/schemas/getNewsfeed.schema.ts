@@ -7,7 +7,7 @@ export const getNewsfeedSchema = {
 	querystring: {
 		type: "object",
 		properties: {
-			url: { type: "string" },
+			url: { type: "string", format: "uri" },
 			force: { type: "integer", enum: [0, 1], default: 0 },
 		},
 		required: [],
