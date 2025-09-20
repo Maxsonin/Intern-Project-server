@@ -35,9 +35,16 @@ export async function getNewsfeed(
 
 		if (!feedData.length) {
 			feedData = await parseFeed(url);
-			await fastify.prisma.news.createMany({
-				data: feedData,
-			});
+
+			await Promise.all(
+				feedData.map((item: NewsItem) =>
+					fastify.prisma.news.upsert({
+						where: { link: item.link },
+						update: { ...item },
+						create: { ...item },
+					}),
+				),
+			);
 		}
 
 		return formatFeedData(feedData);
