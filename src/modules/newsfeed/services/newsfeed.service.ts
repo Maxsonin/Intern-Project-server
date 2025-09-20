@@ -16,22 +16,35 @@ export async function getNewsfeed(
 ) {
 	fastify.log.info({ url, force }, "Fetching newsfeed...");
 
-	let feedData: NewsItem[] = [];
+	const formatFeedData = (feedData: NewsItem[]) =>
+		feedData.map((item) => ({
+			...item,
+			pubDate: item.pubDate ? item.pubDate.toISOString() : null,
+		}));
 
-	if (!force) {
-		// TODO: check DB first
-		feedData = [];
+	try {
+		if (force) {
+			const feedData = await parseFeed(url);
+			return formatFeedData(feedData);
+		}
+
+		let feedData = await fastify.prisma.news.findMany({
+			where: { rssUrl: url },
+			orderBy: { pubDate: "desc" },
+		});
+
+		if (!feedData.length) {
+			feedData = await parseFeed(url);
+			await fastify.prisma.news.createMany({
+				data: feedData,
+			});
+		}
+
+		return formatFeedData(feedData);
+	} catch (error) {
+		fastify.log.error({ url, error }, `Failed to fetch newsfeed: ${error}`);
+		return [];
 	}
-
-	if (!feedData.length || force) {
-		feedData = await parseFeed(url);
-		// TODO: save to DB
-	}
-
-	return feedData.map((item) => ({
-		...item,
-		pubDate: item.pubDate ? item.pubDate.toISOString() : null,
-	}));
 }
 
 async function parseFeed(url: string): Promise<NewsItem[]> {
