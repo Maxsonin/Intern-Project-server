@@ -31,18 +31,19 @@ async function buildApp(options: AppOptions = {}) {
 		fastify.log.info("🔌 Loading routes...");
 
 		const modulesDir = join(__dirname, "modules");
-		const moduleNames = readdirSync(modulesDir, { withFileTypes: true })
+		const routeDirs = readdirSync(modulesDir, { withFileTypes: true })
 			.filter((dirent) => dirent.isDirectory())
-			.map((dirent) => dirent.name);
+			.map((dirent) => join(modulesDir, dirent.name, "routes"));
 
-		for (const moduleName of moduleNames) {
-			await fastify.register(AutoLoad, {
-				dir: join(__dirname, "modules", moduleName, "routes"),
-				dirNameRoutePrefix: false,
-				options,
-				ignorePattern: /^((?!route).)*$/, // only load *.route.ts
-			});
-		}
+		await Promise.all(
+			routeDirs.map((dir) =>
+				fastify.register(AutoLoad, {
+					dir,
+					options,
+					ignorePattern: /^((?!route).)*$/, // only load .route.ts
+				}),
+			),
+		);
 		fastify.log.info("✅ Routes loaded successfully");
 	} catch (error) {
 		fastify.log.error("❌ Error in autoload:", error);
