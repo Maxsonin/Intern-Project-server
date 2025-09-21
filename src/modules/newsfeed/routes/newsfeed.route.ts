@@ -3,7 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { getNewsfeedSchema } from "../schemas/getNewsfeed.schema";
 import { getNewsfeed } from "../services/newsfeed.service";
 
-export async function getFeedDataRoutes(fastify: FastifyInstance) {
+export default async function getFeedDataRoutes(fastify: FastifyInstance) {
 	const route = fastify.withTypeProvider<JsonSchemaToTsProvider>();
 
 	route.get(
