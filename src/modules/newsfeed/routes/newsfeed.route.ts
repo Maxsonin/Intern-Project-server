@@ -1,7 +1,8 @@
 import type { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import type { FastifyInstance } from "fastify";
 import { getNewsfeedSchema } from "../schemas/getNewsfeed.schema";
-import { getNewsfeed } from "../services/newsfeed.service";
+import { parseUrlSchema } from "../schemas/parseUrl.schema";
+import { getNewsfeed, parseUrl } from "../services/newsfeed.service";
 
 export default async function getFeedDataRoutes(fastify: FastifyInstance) {
 	const route = fastify.withTypeProvider<JsonSchemaToTsProvider>();
@@ -19,6 +20,20 @@ export default async function getFeedDataRoutes(fastify: FastifyInstance) {
 				reply.send({ data: feedData });
 			} catch (err) {
 				fastify.log.error({ err }, "Error in newsfeed GET/ route");
+				reply.internalServerError();
+			}
+		},
+	);
+
+	route.get(
+		"/newsfeed/parse-url",
+		{ schema: parseUrlSchema },
+		async (request, reply) => {
+			try {
+				const content = await parseUrl(fastify, request.query.url);
+				reply.send({ content });
+			} catch (err) {
+				fastify.log.error({ err }, "Error in parse-url GET/ route");
 				reply.internalServerError();
 			}
 		},

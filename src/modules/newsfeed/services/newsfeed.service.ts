@@ -1,3 +1,4 @@
+import * as cheerio from "cheerio";
 import type { FastifyInstance } from "fastify";
 import Parser from "rss-parser";
 import type { NewsItem } from "../types/newsItem";
@@ -9,6 +10,7 @@ const parser = new Parser({
 			["description"],
 			["thumbnail"],
 			["media:content", "media_content", { keepArray: true }],
+			["media:thumbnail", "media_thumbnail", { keepArray: true }],
 		],
 	},
 });
@@ -62,6 +64,22 @@ export async function getNewsfeed(
 	}
 }
 
+export async function parseUrl(
+	fastify: FastifyInstance,
+	url: string,
+): Promise<string | null> {
+	fastify.log.error({ url }, "Parsing HTML from URL");
+
+	try {
+		const $ = await cheerio.fromURL(url);
+		const content = $("p").text();
+		return content;
+	} catch (err) {
+		fastify.log.error({ url, err }, "Error parsing URL");
+		return null;
+	}
+}
+
 async function parseFeed(url: string): Promise<NewsItem[]> {
 	try {
 		const feed = await parser.parseURL(url);
@@ -72,7 +90,10 @@ async function parseFeed(url: string): Promise<NewsItem[]> {
 			link: item.link,
 			pubDate: feedToDate(item.pubDate ?? item.isoDate),
 			description: item.description ?? item.contentSnippet ?? item.content,
-			thumbnail: item.thumbnail ?? item.media_content?.[0]?.$.url,
+			thumbnail:
+				item.thumbnail ??
+				item.media_thumbnail?.[0]?.$.url ??
+				item.media_content?.[0]?.$.url,
 		}));
 	} catch (err) {
 		console.error("Failed to parse RSS feed:", err);
