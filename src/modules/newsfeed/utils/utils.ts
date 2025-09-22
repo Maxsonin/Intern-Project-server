@@ -1,4 +1,7 @@
-export function feedToDate(date: string | null): Date | null {
-	// Some additional logic can be added
-	return date ? new Date(date) : null;
+export function feedToDate(
+	date: string | null | undefined,
+	fallback: Date = new Date(),
+): Date {
+	const d = new Date(date ?? "");
+	return Number.isNaN(d.getTime()) ? fallback : d;
 }

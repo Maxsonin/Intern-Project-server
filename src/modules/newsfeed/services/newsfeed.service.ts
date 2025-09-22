@@ -3,7 +3,15 @@ import Parser from "rss-parser";
 import type { NewsItem } from "../types/newsItem";
 import { feedToDate } from "../utils/utils";
 
-const parser: Parser = new Parser();
+const parser = new Parser({
+	customFields: {
+		item: [
+			["description"],
+			["thumbnail"],
+			["media:content", "media_content", { keepArray: true }],
+		],
+	},
+});
 
 type GetNewsfeedOptions = {
 	url: string;
@@ -19,7 +27,7 @@ export async function getNewsfeed(
 	const formatFeedData = (feedData: NewsItem[]) =>
 		feedData.map((item) => ({
 			...item,
-			pubDate: item.pubDate ? item.pubDate.toISOString() : null,
+			pubDate: item.pubDate?.toISOString(),
 		}));
 
 	try {
@@ -59,11 +67,12 @@ async function parseFeed(url: string): Promise<NewsItem[]> {
 		const feed = await parser.parseURL(url);
 
 		return feed.items.map((item) => ({
-			title: item.title ?? "",
+			title: item.title,
 			rssUrl: url,
-			link: item.link ?? "",
-			pubDate: feedToDate(item.pubDate ?? item.isoDate ?? null),
-			description: item.description ?? item.contentSnippet ?? "",
+			link: item.link,
+			pubDate: feedToDate(item.pubDate ?? item.isoDate),
+			description: item.description ?? item.contentSnippet ?? item.content,
+			thumbnail: item.thumbnail ?? item.media_content?.[0]?.$.url,
 		}));
 	} catch (err) {
 		console.error("Failed to parse RSS feed:", err);

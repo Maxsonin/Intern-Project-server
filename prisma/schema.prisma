@@ -15,10 +15,11 @@ datasource db {
 
 model News {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  link        String    @unique
+  title       String?
+  link        String?   @unique
   rssUrl      String
   pubDate     DateTime?
-  description String
+  description String?
+  thumbnail   String?
   createdAt   DateTime  @default(now())
 }
