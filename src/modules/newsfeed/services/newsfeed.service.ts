@@ -1,3 +1,4 @@
+import type { News } from "@prisma/client";
 import * as cheerio from "cheerio";
 import type { FastifyInstance } from "fastify";
 import Parser from "rss-parser";
@@ -34,30 +35,29 @@ export async function getNewsfeed(
 
 	try {
 		if (force) {
-			const feedData = await parseFeed(url);
-			return formatFeedData(feedData);
+			return formatFeedData(await parseFeed(url));
 		}
 
-		let feedData = await fastify.prisma.news.findMany({
+		const dbNews = await fastify.prisma.news.findMany({
 			where: { rssUrl: url },
 			orderBy: { pubDate: "desc" },
 		});
-
-		if (!feedData.length) {
-			feedData = await parseFeed(url);
-
-			await Promise.all(
-				feedData.map((item: NewsItem) =>
-					fastify.prisma.news.upsert({
-						where: { link: item.link },
-						update: { ...item },
-						create: { ...item },
-					}),
-				),
-			);
+		if (dbNews.length) {
+			return formatFeedData(mapPrismaNewsToNewsItem(dbNews));
 		}
 
-		return formatFeedData(feedData);
+		const parsed = await parseFeed(url);
+		await Promise.all(
+			parsed.map((item) =>
+				fastify.prisma.news.upsert({
+					where: { link: item.link },
+					update: { ...item },
+					create: { ...item },
+				}),
+			),
+		);
+
+		return formatFeedData(parsed);
 	} catch (error) {
 		fastify.log.error({ url, error }, `Failed to fetch newsfeed: ${error}`);
 		return [];
@@ -101,9 +101,20 @@ async function parseFeed(url: string): Promise<NewsItem[]> {
 				item.thumbnail ??
 				item.media_thumbnail?.[0]?.$.url ??
 				item.media_content?.[0]?.$.url,
-		}));
+		})) as NewsItem[];
 	} catch (err) {
 		console.error("Failed to parse RSS feed:", err);
 		return [];
 	}
+}
+
+function mapPrismaNewsToNewsItem(news: News[]): NewsItem[] {
+	return news.map((item) => ({
+		title: item.title ?? undefined,
+		link: item.link,
+		rssUrl: item.rssUrl,
+		pubDate: item.pubDate ?? undefined,
+		description: item.description ?? undefined,
+		thumbnail: item.thumbnail ?? undefined,
+	}));
 }

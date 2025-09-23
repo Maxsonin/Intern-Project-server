@@ -1,6 +1,6 @@
 export type NewsItem = {
 	title?: string;
-	link?: string;
+	link: string;
 	rssUrl: string;
 	pubDate?: Date;
 	description?: string;
