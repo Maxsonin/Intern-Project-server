@@ -68,11 +68,18 @@ export async function parseUrl(
 	fastify: FastifyInstance,
 	url: string,
 ): Promise<string | null> {
-	fastify.log.error({ url }, "Parsing HTML from URL");
+	fastify.log.info({ url }, "Parsing HTML from URL");
 
 	try {
 		const $ = await cheerio.fromURL(url);
-		const content = $("p").text();
+
+		$("header, footer, nav").remove(); // Remove noise
+
+		const paragraphs = $("article p, .article__body p")
+			.map((_, el) => $(el).text().trim())
+			.get();
+
+		const content = paragraphs.join("\n");
 		return content;
 	} catch (err) {
 		fastify.log.error({ url, err }, "Error parsing URL");
