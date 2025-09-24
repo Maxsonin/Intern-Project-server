@@ -1,6 +1,11 @@
 import type { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import type { FastifyInstance } from "fastify";
-import { signInSchema, signUpSchema } from "../schemas/auth.schema";
+import {
+	logoutSchema,
+	meSchema,
+	signInSchema,
+	signUpSchema,
+} from "../schemas/auth.schema";
 import { me, signin, signup } from "../services/auth.service";
 
 export default async function authRoutes(fastify: FastifyInstance) {
@@ -21,6 +26,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
 	route.get(
 		"/auth/me",
 		{
+			schema: meSchema,
 			preHandler: [fastify.authenticate],
 		},
 		async (request) => {
@@ -31,6 +37,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
 	route.post(
 		"/auth/logout",
 		{
+			schema: logoutSchema,
 			preHandler: [fastify.authenticate],
 		},
 		async (_request, reply) => {
