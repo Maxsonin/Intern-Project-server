@@ -25,6 +25,7 @@
 		"bcrypt": "^6.0.0",
 		"cheerio": "^1.1.2",
 		"fastify": "^5.6.0",
+		"fastify-cron": "^1.4.0",
 		"fastify-plugin": "^5.0.1",
 		"json-schema-to-ts": "^3.1.1",
 		"rss-parser": "^3.13.0"

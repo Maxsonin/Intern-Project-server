@@ -87,6 +87,42 @@ export async function parseUrl(
 	}
 }
 
+export async function refreshNewsfeed(fastify: FastifyInstance) {
+	fastify.log.info("Refreshing all newsfeeds...");
+
+	const rssUrls = (
+		await fastify.prisma.news.findMany({
+			select: { rssUrl: true },
+			distinct: ["rssUrl"],
+		})
+	).map((el) => el.rssUrl);
+
+	if (!rssUrls.length) {
+		fastify.log.warn("No RSS URLs found in DB to refresh.");
+		return [];
+	}
+
+	for (const rssUrl of rssUrls) {
+		try {
+			const parsed = await parseFeed(rssUrl);
+
+			await Promise.all(
+				parsed.map((item) =>
+					fastify.prisma.news.upsert({
+						where: { link: item.link },
+						update: { ...item },
+						create: { ...item },
+					}),
+				),
+			);
+		} catch (err) {
+			fastify.log.error({ rssUrl, err }, "Failed to refresh feed");
+		}
+	}
+
+	fastify.log.info("Successfully refreshed all newsfeeds");
+}
+
 async function parseFeed(url: string): Promise<NewsItem[]> {
 	try {
 		const feed = await parser.parseURL(url);
