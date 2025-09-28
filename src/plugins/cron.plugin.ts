@@ -6,10 +6,12 @@ const pluginName = "cron-plugin";
 
 export default fp(
 	async (fastify) => {
+		const cronTime = fastify.config.NEWSFEED_REFRESH_CRON;
+
 		fastify.register(fastifyCron, {
 			jobs: [
 				{
-					cronTime: "0 0 * * 1", // every Monday at 00:00
+					cronTime: cronTime,
 					onTick: async () => {
 						await refreshNewsfeed(fastify);
 					},
