@@ -7,7 +7,8 @@ const pluginName = "static-plugin";
 export default fp(
 	async (fastify) => {
 		fastify.register(fastifyStatic, {
-			root: join(__dirname, "../../uploads"),
+			root: join(__dirname, "../uploads"),
+			prefix: "/ad/",
 		});
 		fastify.logPluginLoad(pluginName);
 	},

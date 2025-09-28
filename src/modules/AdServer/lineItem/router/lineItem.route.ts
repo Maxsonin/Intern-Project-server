@@ -34,9 +34,7 @@ export default async function getLineItemRoutes(fastify: FastifyInstance) {
 				const data = await request.file();
 				if (!data || !data.file) return reply.badRequest("No file uploaded");
 
-				const filePath = await saveLineItemFile(fastify, data);
-
-				console.log("filePath111111", filePath);
+				const fileName = await saveLineItemFile(fastify, data);
 
 				const body = data as Record<string, any>;
 				const lineItem: LineItem = {
@@ -46,14 +44,9 @@ export default async function getLineItemRoutes(fastify: FastifyInstance) {
 					min_cpm: Number(body.fields.min_cpm.value),
 					max_cpm: Number(body.fields.max_cpm.value),
 					frequency: Number(body.fields.frequency.value),
-					filePath,
+					fileName,
 				};
-
-				console.log("lineItem222222", lineItem);
-
 				const savedItem = await saveLineItemMetadata(fastify, lineItem);
-
-				console.log("filePath", savedItem);
 
 				reply.send(savedItem);
 			} catch (error) {

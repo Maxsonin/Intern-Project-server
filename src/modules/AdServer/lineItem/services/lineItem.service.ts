@@ -18,7 +18,7 @@ export async function saveLineItemMetadata(
 			geo: data.geo,
 			adType: data.adType,
 			frequency: data.frequency,
-			filePath: data.filePath,
+			fileName: data.fileName,
 		},
 	});
 }
@@ -29,11 +29,14 @@ export async function saveLineItemFile(
 ) {
 	fastify.log.info(`Uploading file ${data.filename} to server`);
 
-	const uploadDir = path.join(process.cwd(), "uploads");
+	const distRoot = path.resolve(__dirname, "../../../..");
+	const uploadDir = path.join(distRoot, "uploads");
+
 	await fs.promises.mkdir(uploadDir, { recursive: true });
+
 	const filePath = path.join(uploadDir, data.filename);
 
 	await pipeline(data.file, fs.createWriteStream(filePath));
 
-	return filePath;
+	return data.filename;
 }

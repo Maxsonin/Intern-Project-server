@@ -41,6 +41,6 @@ model LineItem {
   geo       String
   adType    String
   frequency Int
-  filePath  String
+  fileName  String
   createdAt DateTime @default(now())
 }

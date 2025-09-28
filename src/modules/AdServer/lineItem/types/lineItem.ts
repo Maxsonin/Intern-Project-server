@@ -5,5 +5,5 @@ export type LineItem = {
 	geo: string;
 	adType: string;
 	frequency: number;
-	filePath: string;
+	fileName: string;
 };
