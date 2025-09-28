@@ -8,8 +8,16 @@ export const EnvSchema = {
 		DEFAULT_FEED_URL: { type: "string" },
 		JWT_SECRET: { type: "string" },
 		NODE_ENV: { type: "string" },
+		NEWSFEED_REFRESH_CRON: { type: "string", default: "0 0 * * 1" }, // every Monday at 00:00
 	},
-	required: ["PORT", "HOST", "DEFAULT_FEED_URL", "JWT_SECRET", "NODE_ENV"],
+	required: [
+		"PORT",
+		"HOST",
+		"DEFAULT_FEED_URL",
+		"JWT_SECRET",
+		"NODE_ENV",
+		"NEWSFEED_REFRESH_CRON",
+	],
 	additionalProperties: false,
 } as const;
 
