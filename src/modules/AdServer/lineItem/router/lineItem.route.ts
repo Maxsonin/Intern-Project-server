@@ -36,6 +36,7 @@ export default async function getLineItemRoutes(fastify: FastifyInstance) {
 
 				const fileName = await saveLineItemFile(fastify, data);
 
+				// biome-ignore lint/suspicious/noExplicitAny: <This is a corner case>
 				const body = data as Record<string, any>;
 				const lineItem: LineItem = {
 					size: body.fields.size.value,
