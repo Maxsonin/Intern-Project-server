@@ -14,6 +14,15 @@ export default fp(
 					description: "API documentation for Intern-Project-server",
 					version: "0.0.1",
 				},
+				components: {
+					securitySchemes: {
+						sessionCookie: {
+							type: "apiKey",
+							in: "cookie",
+							name: "access_token",
+						},
+					},
+				},
 			},
 		});
 

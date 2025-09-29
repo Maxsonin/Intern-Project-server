@@ -13,6 +13,11 @@ export default async function getLineItemRoutes(fastify: FastifyInstance) {
 	route.get(
 		"/lineitemformpage",
 		{
+			schema: {
+				tags: ["lineItem"],
+				description: "Serve HTML form for creation of a line item",
+				security: [{ sessionCookie: [] }],
+			},
 			preHandler: [fastify.authenticate],
 		},
 		async (_, reply) => {
@@ -26,7 +31,11 @@ export default async function getLineItemRoutes(fastify: FastifyInstance) {
 		{
 			preHandler: [fastify.authenticate],
 			schema: {
+				tags: ["lineItem"],
+				description:
+					"Handle form submission for creating a line item with file upload",
 				consumes: ["multipart/form-data"],
+				security: [{ sessionCookie: [] }],
 			},
 		},
 		async (request, reply) => {
