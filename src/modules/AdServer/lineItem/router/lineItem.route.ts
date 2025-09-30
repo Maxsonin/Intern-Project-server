@@ -6,6 +6,10 @@ import {
 	saveLineItemMetadata,
 } from "../services/lineItem.service";
 import type { LineItem } from "../types/lineItem";
+import {
+	lineItemCreateSchema,
+	lineItemPageSchema,
+} from "../schemas/lineItem.schema";
 
 export default async function getLineItemRoutes(fastify: FastifyInstance) {
 	const route = fastify.withTypeProvider<JsonSchemaToTsProvider>();
@@ -13,11 +17,7 @@ export default async function getLineItemRoutes(fastify: FastifyInstance) {
 	route.get(
 		"/lineitemformpage",
 		{
-			schema: {
-				tags: ["lineItem"],
-				description: "Serve HTML form for creation of a line item",
-				security: [{ sessionCookie: [] }],
-			},
+			schema: lineItemPageSchema,
 			preHandler: [fastify.authenticate],
 		},
 		async (_, reply) => {
@@ -29,14 +29,8 @@ export default async function getLineItemRoutes(fastify: FastifyInstance) {
 	route.post(
 		"/lineitemformpage",
 		{
+			schema: lineItemCreateSchema,
 			preHandler: [fastify.authenticate],
-			schema: {
-				tags: ["lineItem"],
-				description:
-					"Handle form submission for creating a line item with file upload",
-				consumes: ["multipart/form-data"],
-				security: [{ sessionCookie: [] }],
-			},
 		},
 		async (request, reply) => {
 			try {
@@ -45,15 +39,19 @@ export default async function getLineItemRoutes(fastify: FastifyInstance) {
 
 				const fileName = await saveLineItemFile(fastify, data);
 
-				// biome-ignore lint/suspicious/noExplicitAny: <This is a corner case>
-				const body = data as Record<string, any>;
+				const { fields } = data as {
+					fields: Record<string, { value: string }>;
+				};
+
+				const { size, geo, adType, min_cpm, max_cpm, frequency } = fields;
+
 				const lineItem: LineItem = {
-					size: body.fields.size.value,
-					geo: body.fields.geo.value,
-					adType: body.fields.adType.value,
-					min_cpm: Number(body.fields.min_cpm.value),
-					max_cpm: Number(body.fields.max_cpm.value),
-					frequency: Number(body.fields.frequency.value),
+					size: size.value,
+					geo: geo.value,
+					adType: adType.value,
+					min_cpm: Number(min_cpm.value),
+					max_cpm: Number(max_cpm.value),
+					frequency: Number(frequency.value),
 					fileName,
 				};
 				const savedItem = await saveLineItemMetadata(fastify, lineItem);

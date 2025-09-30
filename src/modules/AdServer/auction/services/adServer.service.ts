@@ -6,7 +6,7 @@ export async function getAd(
 ) {
 	const { bidId, sizes } = args;
 
-	console.log("Fetching ad for sizes:", sizes);
+	fastify.log.info({ sizes }, "Fetching ad for sizes");
 
 	const requestedSizes = sizes.map(([w, h]) => `${w}x${h}`);
 	const matchingAds = await fastify.prisma.lineItem.findMany({

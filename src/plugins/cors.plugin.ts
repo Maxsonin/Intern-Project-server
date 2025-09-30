@@ -8,7 +8,6 @@ export default fp(
 		await fastify.register(cors, {
 			origin: [
 				"http://localhost:5173", // dev
-				"http://localhost:9999", // prebid
 				"https://intern-news-project.vercel.app", // prod
 			],
 			credentials: true,

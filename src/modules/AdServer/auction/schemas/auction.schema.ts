@@ -77,3 +77,9 @@ export type LeskoAuctionRequest = FromSchema<typeof leskoAuctionBodySchema>;
 export type LeskoAuctionResponse = FromSchema<
 	(typeof leskoAuctionResponseSchema)[200]
 >;
+
+export const leskoAuctionSchema = {
+	tags: ["auction"],
+	body: leskoAuctionBodySchema,
+	response: leskoAuctionResponseSchema,
+} as const;
