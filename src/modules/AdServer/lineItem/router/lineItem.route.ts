@@ -2,14 +2,14 @@ import { join } from "node:path";
 import type { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import type { FastifyInstance } from "fastify";
 import {
+	lineItemCreateSchema,
+	lineItemPageSchema,
+} from "../schemas/lineItem.schema";
+import {
 	saveLineItemFile,
 	saveLineItemMetadata,
 } from "../services/lineItem.service";
 import type { LineItem } from "../types/lineItem";
-import {
-	lineItemCreateSchema,
-	lineItemPageSchema,
-} from "../schemas/lineItem.schema";
 
 export default async function getLineItemRoutes(fastify: FastifyInstance) {
 	const route = fastify.withTypeProvider<JsonSchemaToTsProvider>();
