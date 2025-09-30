@@ -5,7 +5,7 @@
 	"main": "index.js",
 	"scripts": {
 		"dev": "concurrently -k -p \"[{name}]\" -n \"TypeScript,App\" -c \"yellow.bold,cyan.bold\" \"tsc -w\" \"nodemon\"",
-		"build": "tsc",
+		"build": "tsc && cpx \"uploads/**/*\" build/uploads && cpx \"src/modules/AdServer/lineItem/pages/**/*\" build/modules/AdServer/lineItem/pages",
 		"biome": "biome check --write"
 	},
 	"keywords": [],
@@ -17,7 +17,9 @@
 		"@fastify/cors": "^11.1.0",
 		"@fastify/env": "^5.0.2",
 		"@fastify/jwt": "^10.0.0",
+		"@fastify/multipart": "^9.2.1",
 		"@fastify/sensible": "^6.0.3",
+		"@fastify/static": "^8.2.0",
 		"@fastify/swagger": "^9.5.1",
 		"@fastify/swagger-ui": "^5.2.3",
 		"@fastify/type-provider-json-schema-to-ts": "^5.0.0",
@@ -28,13 +30,15 @@
 		"fastify-cron": "^1.4.0",
 		"fastify-plugin": "^5.0.1",
 		"json-schema-to-ts": "^3.1.1",
-		"rss-parser": "^3.13.0"
+		"rss-parser": "^3.13.0",
+		"uuid": "^13.0.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.4",
 		"@types/bcrypt": "^6.0.0",
 		"@types/node": "^24.5.1",
 		"concurrently": "^9.2.1",
+		"cpx": "^1.5.0",
 		"nodemon": "^3.1.10",
 		"prisma": "^6.16.2",
 		"ts-node": "^10.9.2",

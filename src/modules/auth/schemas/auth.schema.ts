@@ -41,6 +41,7 @@ export const meSchema = {
 			required: ["id", "name", "email"],
 		},
 	},
+	security: [{ sessionCookie: [] }],
 } as const;
 
 export const logoutSchema = {
@@ -55,6 +56,7 @@ export const logoutSchema = {
 			required: ["success"],
 		},
 	},
+	security: [{ sessionCookie: [] }],
 } as const;
 
 export type SignUpSchema = FromSchema<typeof signUpSchema.body>;
