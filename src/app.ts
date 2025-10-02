@@ -3,6 +3,7 @@ import { join } from "node:path";
 import AutoLoad from "@fastify/autoload";
 import Fastify, { type FastifyServerOptions } from "fastify";
 import configPlugin from "./config";
+import clickhousePlugin from "./config/clickhouse";
 import prismaPlugin from "./config/prisma";
 
 export type AppOptions = Partial<FastifyServerOptions>;
@@ -12,6 +13,7 @@ async function buildApp(options: AppOptions = {}) {
 
 	await fastify.register(configPlugin);
 	await fastify.register(prismaPlugin);
+	await fastify.register(clickhousePlugin);
 
 	try {
 		fastify.decorate("logPluginLoad", (pluginName: string) => {

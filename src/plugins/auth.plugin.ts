@@ -15,7 +15,7 @@ export default fp(
 				signed: false,
 			},
 			sign: {
-				expiresIn: "15m",
+				expiresIn: "30m",
 			},
 		});
 

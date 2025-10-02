@@ -18,7 +18,7 @@ export async function getAd(
 	console.log("Matching ads:", matchingAds);
 	console.log("Selected ad:", ad);
 
-	const adUrl = `/ad/${ad.fileName}`;
+	const adUrl = `ad/${ad.fileName}`;
 
 	const cpm = +(Math.random() * (ad.max_cpm - ad.min_cpm) + ad.min_cpm).toFixed(
 		2,
