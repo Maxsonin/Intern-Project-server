@@ -15,7 +15,7 @@ export default async function getStatisticsRoutes(fastify: FastifyInstance) {
 	const route = fastify.withTypeProvider<JsonSchemaToTsProvider>();
 
 	const eventsCache = new Set<EventElement>();
-	const MAX_CACHE_SIZE = 10;
+	const MAX_CACHE_SIZE = 5;
 	const FLUSH_INTERVAL_MS = 1000 * 60 * 60; // 1 hour
 	let lastFlushTime = Date.now();
 

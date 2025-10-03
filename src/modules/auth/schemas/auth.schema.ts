@@ -10,6 +10,15 @@ export const signUpSchema = {
 			password: { type: "string", minLength: 6 },
 			name: { type: "string", minLength: 2 },
 		},
+		"x-examples": {
+			"Test User": {
+				value: {
+					email: "johnDoe@example.com",
+					password: "mypassword",
+					name: "John Doe",
+				},
+			},
+		},
 		required: ["email", "password", "name"],
 	},
 } as const;
@@ -22,6 +31,14 @@ export const signInSchema = {
 		properties: {
 			email: { type: "string", format: "email" },
 			password: { type: "string" },
+		},
+		"x-examples": {
+			"Test User": {
+				value: {
+					email: "johnDoe@example.com",
+					password: "mypassword",
+				},
+			},
 		},
 		required: ["email", "password"],
 	},

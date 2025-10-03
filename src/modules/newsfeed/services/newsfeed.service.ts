@@ -35,7 +35,7 @@ export async function getNewsfeed(
 
 	try {
 		if (force) {
-			return formatFeedData(await parseFeed(url));
+			return formatFeedData(await parseFeed(fastify, url));
 		}
 
 		const dbNews = await fastify.prisma.news.findMany({
@@ -46,7 +46,7 @@ export async function getNewsfeed(
 			return formatFeedData(mapPrismaNewsToNewsItem(dbNews));
 		}
 
-		const parsed = await parseFeed(url);
+		const parsed = await parseFeed(fastify, url);
 		await Promise.all(
 			parsed.map((item) =>
 				fastify.prisma.news.upsert({
@@ -104,7 +104,7 @@ export async function refreshNewsfeed(fastify: FastifyInstance) {
 
 	for (const rssUrl of rssUrls) {
 		try {
-			const parsed = await parseFeed(rssUrl);
+			const parsed = await parseFeed(fastify, rssUrl);
 
 			await Promise.all(
 				parsed.map((item) =>
@@ -123,7 +123,10 @@ export async function refreshNewsfeed(fastify: FastifyInstance) {
 	fastify.log.info("Successfully refreshed all newsfeeds");
 }
 
-async function parseFeed(url: string): Promise<NewsItem[]> {
+async function parseFeed(
+	fastify: FastifyInstance,
+	url: string,
+): Promise<NewsItem[]> {
 	try {
 		const feed = await parser.parseURL(url);
 
@@ -139,7 +142,7 @@ async function parseFeed(url: string): Promise<NewsItem[]> {
 				item.media_content?.[0]?.$.url,
 		})) as NewsItem[];
 	} catch (err) {
-		console.error("Failed to parse RSS feed:", err);
+		fastify.log.error("Failed to parse RSS feed:", err);
 		return [];
 	}
 }

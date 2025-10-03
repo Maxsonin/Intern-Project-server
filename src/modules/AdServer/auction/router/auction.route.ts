@@ -1,7 +1,7 @@
 import type { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import type { FastifyInstance } from "fastify";
 import { leskoAuctionSchema } from "../schemas/auction.schema";
-import { getAd } from "../services/adServer.service";
+import { getAd } from "../services/auction.service";
 
 export default async function leskoAuctionRoutes(fastify: FastifyInstance) {
 	const route = fastify.withTypeProvider<JsonSchemaToTsProvider>();

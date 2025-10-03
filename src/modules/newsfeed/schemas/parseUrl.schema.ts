@@ -7,7 +7,12 @@ export const parseUrlSchema = {
 	querystring: {
 		type: "object",
 		properties: {
-			url: { type: "string", format: "uri" },
+			url: {
+				type: "string",
+				format: "uri",
+				default:
+					"https://www.wired.com/story/a-newly-discovered-einsteins-cross-reveals-the-existence-of-a-giant-dark-matter-halo/",
+			},
 		},
 		required: ["url"],
 		additionalProperties: false,

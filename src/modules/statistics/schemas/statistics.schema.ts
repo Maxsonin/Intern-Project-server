@@ -2,9 +2,9 @@ import type { FromSchema } from "json-schema-to-ts";
 
 export const EventSchema = {
 	tags: ["statistics"],
+	description: "Save incoming event data",
 	body: {
 		type: "array",
-		description: "Save incoming event data",
 		items: {
 			type: "object",
 			properties: {
@@ -25,6 +25,13 @@ export const EventSchema = {
 				creativeId: { type: "string" },
 				cpm: { type: "number" },
 			},
+			"x-examples": {
+				eventType: "bidWon",
+				deviceType: "desktop",
+				adapter: "lesko",
+				creativeId: "12345",
+				cpm: 100,
+			},
 			required: ["eventType", "deviceType"],
 			additionalProperties: false,
 		},
@@ -34,6 +41,7 @@ export const EventSchema = {
 
 export const FilterSchema = {
 	tags: ["statistics"],
+	description: "Accept filter parameters and return filtered data",
 	body: {
 		type: "object",
 		properties: {
@@ -134,6 +142,28 @@ export const FilterSchema = {
 					order: { type: "string", enum: ["asc", "desc"], default: "desc" },
 				},
 				additionalProperties: false,
+			},
+		},
+		"x-examples": {
+			Default: {
+				summary: "Default filter example",
+				value: {
+					columns: ["eventType", "timestamp", "adapter", "creativeId", "cpm"],
+					filters: {
+						cpm: {
+							lte: 1,
+						},
+						adapter: ["bidmatic"],
+					},
+					sort: {
+						field: "cpm",
+						order: "desc",
+					},
+					pagination: {
+						page: 1,
+						limit: 50,
+					},
+				},
 			},
 		},
 		required: ["columns"],
