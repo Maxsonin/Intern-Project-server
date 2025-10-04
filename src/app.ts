@@ -5,11 +5,14 @@ import type Ajv from "ajv";
 import Fastify, { type FastifyServerOptions } from "fastify";
 import configPlugin from "./config";
 import clickhousePlugin from "./config/clickhouse";
+import startOtel from "./config/otel";
 import prismaPlugin from "./config/prisma";
 
 export type AppOptions = Partial<FastifyServerOptions>;
 
 async function buildApp(options: AppOptions = {}) {
+	await startOtel();
+
 	const fastify = Fastify({
 		...options,
 		ajv: {
