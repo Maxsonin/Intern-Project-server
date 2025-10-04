@@ -39,7 +39,7 @@ export async function signin(
 		.setCookie("access_token", token, {
 			httpOnly: true,
 			path: "/",
-			sameSite: true,
+			sameSite: "none",
 			secure: fastify.config.NODE_ENV === "production",
 		})
 		.send({ id: user.id, email: user.email, name: user.name });
