@@ -57,6 +57,8 @@ async function buildApp(options: AppOptions = {}) {
 			),
 		);
 		fastify.log.info("✅ Routes loaded successfully");
+
+		fastify.cron.startAllJobs();
 	} catch (error) {
 		fastify.log.error("❌ Error in autoload:", error);
 		throw error;

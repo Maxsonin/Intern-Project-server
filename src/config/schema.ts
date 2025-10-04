@@ -12,12 +12,12 @@ export const EnvSchema = {
 
 		NODE_ENV: { type: "string" },
 
-		NEWSFEED_REFRESH_CRON: { type: "string", default: "0 0 * * 1" }, // every Monday at 00:00
+		NEWSFEED_REFRESH_CRON: { type: "string", default: "*/1 * * * *" }, // every minute (showcase purpose only)
 
 		CLICKHOUSE_DB: { type: "string", default: "statistics" },
 		CLICKHOUSE_PASSWORD: { type: "string" },
 		CLICKHOUSE_USER: { type: "string" },
-		CLICKHOUSE_URL: { type: "string" },
+		CLICKHOUSE_URL: { type: "string", format: "uri" },
 	},
 	required: [
 		"PORT",

@@ -1,12 +1,155 @@
+import ExcelJS from "exceljs";
 import type { FastifyInstance } from "fastify";
 import geoip from "geoip-lite";
 import { TABLE_NAME } from "../../../config/clickhouse";
 import type {
+	EventBody,
 	EventBodyItem,
+	FilterBodyColumns,
 	FilterBodyFilters,
+	FilterBodyPagination,
 	FilterBodySort,
 } from "../schemas/statistics.schema";
 import type { EventElement } from "../types/statistics";
+
+const eventsCache = new Set<EventElement>();
+const MAX_CACHE_SIZE = 20; // showcase purpose only
+const FLUSH_INTERVAL_MS = 1000 * 60; // 1 min (showcase purpose only)
+let lastFlushTime = Date.now();
+
+const MAX_ROW_LIMIT = 10000;
+
+export async function handlePostEvent(
+	fastify: FastifyInstance,
+	events: EventBody,
+	requestIp: string,
+) {
+	events.forEach((event) => {
+		eventsCache.add(transformEvent(event, requestIp));
+	});
+
+	if (
+		eventsCache.size >= MAX_CACHE_SIZE ||
+		Date.now() - lastFlushTime >= FLUSH_INTERVAL_MS
+	) {
+		try {
+			await saveEventsToDB(fastify, Array.from(eventsCache));
+			eventsCache.clear();
+			lastFlushTime = Date.now();
+		} catch {
+			fastify.httpErrors.internalServerError("Failed to insert event");
+		}
+	}
+}
+
+export async function getEvents(
+	fastify: FastifyInstance,
+	columns: FilterBodyColumns,
+	filters: FilterBodyFilters,
+	pagination: FilterBodyPagination,
+	sort: FilterBodySort,
+) {
+	try {
+		const whereClause = createFilterConditions(filters);
+
+		const data = await getData(
+			fastify,
+			whereClause,
+			pagination.limit,
+			pagination.page,
+			columns,
+			sort,
+		);
+
+		const { total, totalPages } = await getTotalPages(
+			fastify,
+			whereClause,
+			pagination.limit,
+		);
+
+		return {
+			data,
+			pagination: {
+				total,
+				limit: pagination.limit,
+				page: pagination.page,
+				totalPages,
+			},
+		};
+	} catch {
+		fastify.httpErrors.internalServerError("Failed to get events");
+	}
+}
+
+export async function exportCSV(
+	fastify: FastifyInstance,
+	columns: FilterBodyColumns,
+	filters: FilterBodyFilters,
+	sort: FilterBodySort,
+) {
+	try {
+		const whereClause = createFilterConditions(filters ?? {});
+
+		const data = await getData(
+			fastify,
+			whereClause,
+			MAX_ROW_LIMIT,
+			1,
+			columns,
+			sort,
+		);
+
+		const workbook = new ExcelJS.Workbook();
+		const sheet = workbook.addWorksheet();
+
+		sheet.addRow(columns);
+
+		data.forEach((row) => {
+			sheet.addRow(columns.map((col) => row[col]));
+		});
+
+		const buffer = await workbook.csv.writeBuffer();
+
+		return buffer;
+	} catch {
+		fastify.httpErrors.internalServerError("Failed to create CSV file");
+	}
+}
+
+export async function exportExel(
+	fastify: FastifyInstance,
+	columns: FilterBodyColumns,
+	filters: FilterBodyFilters,
+	sort: FilterBodySort,
+) {
+	try {
+		const whereClause = createFilterConditions(filters ?? {});
+
+		const data = await getData(
+			fastify,
+			whereClause,
+			MAX_ROW_LIMIT,
+			1,
+			columns,
+			sort,
+		);
+
+		const workbook = new ExcelJS.Workbook();
+		const sheet = workbook.addWorksheet("Events");
+
+		sheet.addRow(columns);
+
+		data.forEach((row) => {
+			sheet.addRow(columns.map((col) => row[col]));
+		});
+
+		const buffer = await workbook.xlsx.writeBuffer();
+
+		return buffer;
+	} catch {
+		fastify.httpErrors.internalServerError("Failed to create XLSX file");
+	}
+}
 
 export async function saveEventsToDB(
 	fastify: FastifyInstance,

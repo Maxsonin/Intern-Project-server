@@ -176,6 +176,13 @@ export type EventBody = FromSchema<typeof EventSchema.body>;
 export type EventBodyItem = FromSchema<typeof EventSchema.body.items>;
 
 export type FilterBody = FromSchema<typeof FilterSchema.body>;
+
+export type FilterBodyColumns = FromSchema<
+	typeof FilterSchema.body.properties.columns
+>;
+export type FilterBodyPagination = FromSchema<
+	typeof FilterSchema.body.properties.pagination
+>;
 export type FilterBodyFilters = FromSchema<
 	typeof FilterSchema.body.properties.filters
 >;
