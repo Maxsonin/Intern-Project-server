@@ -1,6 +1,5 @@
 import ExcelJS from "exceljs";
 import type { FastifyInstance } from "fastify";
-import geoip from "geoip-lite";
 import { TABLE_NAME } from "../../../config/clickhouse";
 import type {
 	EventBody,
@@ -180,13 +179,13 @@ function formatTimestampForClickHouse(date: Date): string {
 	return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
 }
 
-export function transformEvent(body: EventBodyItem, ip: string): EventElement {
+export function transformEvent(body: EventBodyItem, _ip: string): EventElement {
 	return {
 		eventType: body.eventType,
 
 		timestamp: formatTimestampForClickHouse(new Date()),
 
-		countryCode: geoip.lookup(ip)?.country ?? "Unknown",
+		countryCode: "UA", // Other Ip logic can be implemented
 		deviceType: body.deviceType,
 
 		adapter: body.adapter ?? null,
