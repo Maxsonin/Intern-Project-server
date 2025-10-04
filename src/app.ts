@@ -1,17 +1,29 @@
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import AutoLoad from "@fastify/autoload";
+import type Ajv from "ajv";
 import Fastify, { type FastifyServerOptions } from "fastify";
 import configPlugin from "./config";
+import clickhousePlugin from "./config/clickhouse";
 import prismaPlugin from "./config/prisma";
 
 export type AppOptions = Partial<FastifyServerOptions>;
 
 async function buildApp(options: AppOptions = {}) {
-	const fastify = Fastify(options);
+	const fastify = Fastify({
+		...options,
+		ajv: {
+			plugins: [
+				(ajv: Ajv) => {
+					ajv.addKeyword({ keyword: "x-examples" });
+				},
+			],
+		},
+	});
 
 	await fastify.register(configPlugin);
 	await fastify.register(prismaPlugin);
+	await fastify.register(clickhousePlugin);
 
 	try {
 		fastify.decorate("logPluginLoad", (pluginName: string) => {
@@ -45,6 +57,8 @@ async function buildApp(options: AppOptions = {}) {
 			),
 		);
 		fastify.log.info("✅ Routes loaded successfully");
+
+		fastify.cron.startAllJobs();
 	} catch (error) {
 		fastify.log.error("❌ Error in autoload:", error);
 		throw error;

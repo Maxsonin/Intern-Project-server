@@ -20,6 +20,14 @@ export const leskoAuctionBodySchema = {
 						},
 					},
 				},
+				"x-examples": {
+					bidId: "12345",
+					leskoid: "12345",
+					sizes: [
+						[300, 250],
+						[300, 600],
+					],
+				},
 				required: ["bidId", "leskoid", "sizes"],
 			},
 		},

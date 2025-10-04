@@ -7,7 +7,11 @@ export const getNewsfeedSchema = {
 	querystring: {
 		type: "object",
 		properties: {
-			url: { type: "string", format: "uri" },
+			url: {
+				type: "string",
+				format: "uri",
+				default: "https://www.wired.com/feed/rss",
+			},
 			force: { type: "integer", enum: [0, 1], default: 0 },
 		},
 		required: [],

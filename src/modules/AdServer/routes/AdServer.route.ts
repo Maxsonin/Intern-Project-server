@@ -1,4 +1,3 @@
-// allRoutes.ts
 import type { FastifyInstance } from "fastify";
 import leskoAuctionRoutes from "../auction/router/auction.route";
 import getLineItemRoutes from "../lineItem/router/lineItem.route";

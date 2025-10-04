@@ -1,13 +1,24 @@
+import { Prisma } from "@prisma/client";
 import bcrypt from "bcrypt";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import type { SignInSchema, SignUpSchema } from "../schemas/auth.schema";
 
 export async function signup(fastify: FastifyInstance, input: SignUpSchema) {
 	const hashedPassword = await bcrypt.hash(input.password, 10);
-	const user = await fastify.prisma.user.create({
-		data: { ...input, password: hashedPassword },
-	});
-	return { id: user.id, email: user.email, name: user.name };
+
+	try {
+		const user = await fastify.prisma.user.create({
+			data: { ...input, password: hashedPassword },
+		});
+		return { id: user.id, email: user.email, name: user.name };
+	} catch (error) {
+		if (error instanceof Prisma.PrismaClientKnownRequestError) {
+			if (error.code === "P2002") {
+				return { statusCode: 400, message: "This email is already in use" };
+			}
+		}
+		fastify.httpErrors.internalServerError("Something went wrong");
+	}
 }
 
 export async function signin(

@@ -2,6 +2,7 @@ import "@fastify/jwt";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { Config } from "../config/schema";
 import type { PrismaClient } from "@prisma/client";
+import type { ClickHouseClient } from "@clickhouse/client";
 
 declare module "@fastify/jwt" {
 	interface FastifyJWT {
@@ -13,7 +14,9 @@ declare module "@fastify/jwt" {
 declare module "fastify" {
 	interface FastifyInstance {
 		config: Config;
+
 		prisma: PrismaClient;
+		clickhouse: ClickHouseClient;
 
 		logPluginLoad: (pluginName: string) => void;
 
